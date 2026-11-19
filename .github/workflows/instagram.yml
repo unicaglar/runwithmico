@@ -1,0 +1,51 @@
+# @runwith.mico Instagram yayıncısı: takvimde zamanı gelen gönderiyi paylaşır.
+# Gerekli gizli değişken: IG_TOKEN (isteğe bağlı: IG_USER_ID). Tanımlı değilse adım atlanır.
+name: Instagram
+
+on:
+  schedule:
+    # Her gün 18:20–00:50 (TR) arası yarım saatte bir; zamanı gelen gönderi ilk başarılı denemede paylaşılır.
+    - cron: "23,53 15-21 * * *"
+  workflow_dispatch:
+    inputs:
+      islem:
+        description: "Çalıştırılacak işlem"
+        type: choice
+        options: [yayinla, kontrol]
+        default: kontrol
+
+permissions:
+  contents: write
+
+concurrency:
+  group: instagram
+  cancel-in-progress: false
+
+jobs:
+  instagram:
+    runs-on: ubuntu-latest
+    env:
+      IG_TOKEN: ${{ secrets.IG_TOKEN }}
+      IG_USER_ID: ${{ secrets.IG_USER_ID }}
+      ISLEM: ${{ github.event.inputs.islem || 'yayinla' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Bağlantı kontrolü
+        if: env.ISLEM == 'kontrol'
+        run: python3 yayinci/ig_yayinla.py kontrol
+
+      - name: Takvimdeki gönderiyi paylaş
+        if: env.ISLEM == 'yayinla'
+        run: python3 yayinci/ig_yayinla.py yayinla
+
+      - name: Takvimi kaydet
+        if: always()
+        run: |
+          git config user.name "instagram-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add instagram/takvim.json || true
+          if git diff --cached --quiet; then echo "Değişiklik yok"; exit 0; fi
+          git commit -m "Instagram: takvim güncellendi"
+          git pull --rebase origin main
+          git push origin HEAD:main
