@@ -22,8 +22,11 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TAKVIM = os.path.join(ROOT, "instagram", "takvim.json")
 # Görseller GitHub Pages'ten sunulur (Instagram görseli bu adresten kendisi çeker)
 SITE = os.environ.get("GORSEL_ADRESI", "https://unicaglar.github.io/runwithmico").rstrip("/")
-API = "https://graph.instagram.com/" + os.environ.get("GRAPH_VERSION", "v23.0") + "/"
-TOKEN = os.environ.get("IG_TOKEN", "").strip()
+SURUM = os.environ.get("GRAPH_VERSION", "v23.0")
+TOKEN = os.environ.get("IG_TOKEN", "").strip().strip('"').strip("'")
+# "IG…" ile başlayan anahtar Instagram adresine, "EAA…" ile başlayan anahtar Facebook Graph adresine gider
+HOST = "https://graph.instagram.com/" if TOKEN.startswith("IG") else "https://graph.facebook.com/"
+API = HOST + SURUM + "/"
 GEC_KALMA = dt.timedelta(hours=48)   # bundan fazla geciken takvim haftalık olarak ileri kaydırılır
 
 def api(path, params=None, post=False):
@@ -40,7 +43,7 @@ def api(path, params=None, post=False):
 
 def ig_user():
     """@runwith.mico hesabının kimliğini döndürür; kullanıcı adı tutmazsa durur."""
-    me = api("me", {"fields": "user_id,username"})
+    me = api("me", {"fields": "user_id,username" if "instagram" in HOST else "id,username"})
     ad = me.get("username", "")
     if ad.lower() != HESAP:
         sys.exit(f"Güvenlik durdurması: anahtar @{ad} hesabına ait, @{HESAP} değil. Hiçbir şey paylaşılmadı.")
@@ -104,6 +107,7 @@ def yayinla():
         json.dump(t, open(TAKVIM, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
 
 def kontrol():
+    print(f"Anahtar türü: {TOKEN[:4]}… ({len(TOKEN)} karakter) → {HOST}")
     uid = ig_user()
     r = api(uid, {"fields": "username,followers_count,media_count"})
     print(f"Bağlantı tamam: @{r.get('username')} · {r.get('followers_count')} takipçi · {r.get('media_count')} gönderi · kimlik {uid}")
