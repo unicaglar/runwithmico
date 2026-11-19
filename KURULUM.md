@@ -1,7 +1,7 @@
 # @runwith.mico Instagram otomasyonu: kurulum
 
 Bu otomasyon **Arel Marin'den tamamen ayrıdır**: ayrı GitHub deposu, ayrı GitHub oturumu, ayrı Meta işletme
-portföyü, ayrı Meta uygulaması ve ayrı bot kullanıcısı. Arel Marin'in hiçbir ayarına dokunulmaz.
+portföyü, ayrı Meta uygulaması. Arel Marin'in hiçbir ayarına dokunulmaz.
 
 Gönderiler `instagram/takvim.json` dosyasında durur. Görseller `gorseller/` klasöründen GitHub Pages ile yayınlanır
 (https://unicaglar.github.io/runwithmico/…). Her akşam 18:20–00:50 arası yarım saatte bir GitHub iş akışı çalışır ve
@@ -28,36 +28,28 @@ Arel Marin'in GitHub oturumu değişmez.
 
 Instagram → Profil → ☰ → **Hesap türü ve araçlar** → **Profesyonel hesaba geç** → **İçerik üreticisi** → kategori: **Sporcu**.
 
-## 3. Facebook sayfası (5 dk)
+## 3. Meta uygulaması (Facebook sayfası gerekmez)
 
-1. https://www.facebook.com/pages/create → Ad: **Run With Miço**, kategori: **Sporcu**
-2. Sayfa → **Ayarlar → Bağlı hesaplar → Instagram → Hesabı bağla** → @runwith.mico
+Kurulu olan: Meta uygulaması **Run With Mico** (App ID 1765600557863847), ayrı işletme portföyü **Run With Mico**
+(Arel Marin portföyü değil). Kullanım durumu: **Instagram API → API setup with Unified login**.
 
-## 4. Yeni işletme portföyü ve uygulama (10 dk)
+1. **1. Configure your app** → yapılandırma: **Instagram API (Birleşik Giriş)** (sistem kullanıcısı anahtarı, süresiz)
+2. **2. Generate access tokens → Add account** → @runwith.mico'ya **Instagram Tester** rolü verilir
+3. Instagram → Ayarlar → **Uygulamalar ve İnternet Siteleri → Test Kullanıcısı Davetleri** → **Kabul Et**
+4. Meta'da @runwith.mico satırında **Generate token** → **Instagram ile devam et** → giriş
+5. "Token generated" penceresinde **I understand** kutusunu işaretle → **Copy**
+   (Kullanıcı adının altındaki 17 haneli sayı hesap kimliğidir, anahtar değil. Anahtar "EAA…" ile başlar, ~265 karakter.)
+   **Bu anahtarı kimseyle (bu sohbet dahil) paylaşma.**
 
-1. https://business.facebook.com → sol üstteki portföy menüsü → **İşletme portföyü oluştur** → Ad: **Run With Miço**
-   (Arel Marin portföyünü seçme.)
-2. Yeni portföyde **Ayarlar → Hesaplar → Sayfalar → Ekle** → Run With Miço; **Instagram hesapları → Ekle** → @runwith.mico
-3. https://developers.facebook.com → **Uygulamalarım → Uygulama oluştur**
-   - Kullanım durumu: **Diğer** → tür: **İşletme** → Ad: `Run With Mico Otomasyon` → portföy: **Run With Miço**
-   - **Ürün ekle → Instagram** (Facebook Girişi ile Instagram API)
-4. Business ayarları (Run With Miço portföyü) → **Kullanıcılar → Sistem kullanıcıları → Ekle**
-   - Ad: `mico-bot`, rol: **Yönetici**
-   - **Varlık ata**: Run With Miço sayfası (tam kontrol) + @runwith.mico (tam kontrol)
-   - **Yeni anahtar oluştur** → uygulama: `Run With Mico Otomasyon` → süre: **Hiçbir zaman sona ermez**
-   - İzinler: `instagram_basic`, `instagram_content_publish`, `pages_show_list`, `pages_read_engagement`, `business_management`
-   - Çıkan anahtarı kopyala. **Bu anahtarı kimseyle (bu sohbet dahil) paylaşma.**
-
-## 5. Anahtarı GitHub'a ekle
+## 4. Anahtarı GitHub'a ekle
 
 1. https://github.com/unicaglar/runwithmico/settings/secrets/actions
 2. **New repository secret** → Name: `IG_TOKEN` → Secret: anahtar → **Add secret**
 
-## 6. Test et
+## 5. Test et
 
 1. https://github.com/unicaglar/runwithmico/actions/workflows/instagram.yml
 2. **Run workflow** → işlem: `kontrol` → **Run workflow**
 3. Bir dakika sonra çalışmayı aç: `Bağlantı tamam: @runwith.mico · … · kimlik …` yazmalı.
-4. (İsteğe bağlı) Çıktıdaki kimliği `IG_USER_ID` adlı ikinci bir secret olarak ekle.
 
 Bundan sonra: Claude takvime gönderi ekler (taslak), sen onaylarsın (bekliyor), tarihi gelince kendiliğinden paylaşılır.
