@@ -1,0 +1,36 @@
+# Instagram erişim anahtarı 60 gün geçerlidir; bu iş akışı her pazartesi süresini uzatır.
+# Instagram yeni bir anahtar değeri döndürürse ve GH_PAT tanımlıysa IG_TOKEN otomatik güncellenir.
+# GH_PAT (isteğe bağlı): yalnızca bu depo için, "Secrets: Read and write" izinli fine-grained GitHub anahtarı.
+name: Anahtar yenile
+
+on:
+  schedule:
+    - cron: "17 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  yenile:
+    runs-on: ubuntu-latest
+    env:
+      IG_TOKEN: ${{ secrets.IG_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Anahtarın süresini uzat
+        run: python3 yayinci/ig_yayinla.py yenile
+
+      - name: Yeni anahtarı kaydet
+        if: hashFiles('yeni_anahtar') != ''
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "::warning::Instagram yeni bir anahtar verdi ama GH_PAT tanımlı değil; IG_TOKEN elle güncellenmeli."
+            rm -f yeni_anahtar; exit 1
+          fi
+          gh secret set IG_TOKEN --repo "$GITHUB_REPOSITORY" < yeni_anahtar
+          rm -f yeni_anahtar
+          echo "IG_TOKEN güncellendi"

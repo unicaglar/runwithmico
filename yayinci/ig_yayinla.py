@@ -2,11 +2,14 @@
 
   python3 yayinci/ig_yayinla.py yayinla   # takvimde zamanı gelen gönderiyi paylaşır
   python3 yayinci/ig_yayinla.py kontrol   # anahtarın çalıştığını ve doğru hesaba bağlı olduğunu gösterir
+  python3 yayinci/ig_yayinla.py yenile    # anahtarın süresini uzatır; yeni anahtar farklıysa yeni_anahtar dosyasına yazar
+
+Yöntem: "Instagram girişiyle Instagram API'si" (graph.instagram.com). Facebook sayfası gerekmez.
 
 Gerekli gizli değişkenler (GitHub > Settings > Secrets and variables > Actions):
-  IG_TOKEN    Meta sistem kullanıcısı erişim anahtarı (instagram_basic, instagram_content_publish,
-              pages_show_list, pages_read_engagement, business_management)
-  IG_USER_ID  (isteğe bağlı) @runwith.mico'nun Instagram kimliği; boşsa anahtardan kullanıcı adına göre bulunur
+  IG_TOKEN    @runwith.mico ile giriş yapılarak alınan uzun ömürlü erişim anahtarı
+              (instagram_business_basic, instagram_business_content_publish). 60 gün geçerlidir;
+              .github/workflows/anahtar-yenile.yml her hafta yeniler.
 
 Güvenlik: Paylaşımdan önce hesabın kullanıcı adı HESAP ile karşılaştırılır; farklıysa hiçbir şey paylaşılmaz.
 Takvimde yalnızca durumu "bekliyor" olan öğeler paylaşılır; "taslak" öğeler onay bekler.
@@ -19,7 +22,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TAKVIM = os.path.join(ROOT, "instagram", "takvim.json")
 # Görseller GitHub Pages'ten sunulur (Instagram görseli bu adresten kendisi çeker)
 SITE = os.environ.get("GORSEL_ADRESI", "https://unicaglar.github.io/runwithmico").rstrip("/")
-API = "https://graph.facebook.com/" + os.environ.get("GRAPH_VERSION", "v23.0") + "/"
+API = "https://graph.instagram.com/" + os.environ.get("GRAPH_VERSION", "v23.0") + "/"
 TOKEN = os.environ.get("IG_TOKEN", "").strip()
 GEC_KALMA = dt.timedelta(hours=48)   # bundan fazla geciken takvim haftalık olarak ileri kaydırılır
 
@@ -37,20 +40,11 @@ def api(path, params=None, post=False):
 
 def ig_user():
     """@runwith.mico hesabının kimliğini döndürür; kullanıcı adı tutmazsa durur."""
-    uid = os.environ.get("IG_USER_ID", "").strip()
-    if not uid:
-        r = api("me/accounts", {"fields": "name,instagram_business_account{id,username}"})
-        for pg in r.get("data", []):
-            h = pg.get("instagram_business_account")
-            if h and h.get("username", "").lower() == HESAP:
-                uid = h["id"]; break
-        if not uid:
-            gorulen = [(pg.get("instagram_business_account") or {}).get("username") for pg in r.get("data", [])]
-            sys.exit(f"@{HESAP} bu anahtarla bulunamadı. Görülen hesaplar: {gorulen}")
-    ad = api(uid, {"fields": "username"}).get("username", "")
+    me = api("me", {"fields": "user_id,username"})
+    ad = me.get("username", "")
     if ad.lower() != HESAP:
-        sys.exit(f"Güvenlik durdurması: kimlik {uid} @{ad} hesabına ait, @{HESAP} değil. Hiçbir şey paylaşılmadı.")
-    return uid
+        sys.exit(f"Güvenlik durdurması: anahtar @{ad} hesabına ait, @{HESAP} değil. Hiçbir şey paylaşılmadı.")
+    return me.get("user_id") or me["id"]
 
 def bekle(cid, deneme=30):
     for _ in range(deneme):
@@ -114,7 +108,25 @@ def kontrol():
     r = api(uid, {"fields": "username,followers_count,media_count"})
     print(f"Bağlantı tamam: @{r.get('username')} · {r.get('followers_count')} takipçi · {r.get('media_count')} gönderi · kimlik {uid}")
 
+def yenile():
+    """Uzun ömürlü anahtarın süresini 60 gün uzatır. Anahtar asla yazdırılmaz."""
+    ig_user()
+    url = "https://graph.instagram.com/refresh_access_token?" + urllib.parse.urlencode(
+        {"grant_type": "ig_refresh_token", "access_token": TOKEN})
+    try:
+        with urllib.request.urlopen(url, timeout=60) as r:
+            d = json.load(r)
+    except urllib.error.HTTPError as e:
+        sys.exit(f"Anahtar yenilenemedi ({e.code}): {e.read().decode(errors='ignore')[:300]}")
+    gun = int(d.get("expires_in", 0)) // 86400
+    yeni = d.get("access_token", "")
+    if yeni and yeni != TOKEN:
+        with open(os.path.join(ROOT, "yeni_anahtar"), "w") as f: f.write(yeni)
+        print(f"Anahtar yenilendi (yeni değer), {gun} gün geçerli")
+    else:
+        print(f"Anahtar uzatıldı, {gun} gün geçerli")
+
 if __name__ == "__main__":
     if not TOKEN:
         print("IG_TOKEN tanımlı değil; Instagram adımı atlandı."); sys.exit(0)
-    {"yayinla": yayinla, "kontrol": kontrol}[sys.argv[1] if len(sys.argv) > 1 else "kontrol"]()
+    {"yayinla": yayinla, "kontrol": kontrol, "yenile": yenile}[sys.argv[1] if len(sys.argv) > 1 else "kontrol"]()
