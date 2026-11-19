@@ -27,6 +27,7 @@ TOKEN = os.environ.get("IG_TOKEN", "").strip().strip('"').strip("'")
 # "IG…" ile başlayan anahtar Instagram adresine, "EAA…" ile başlayan anahtar Facebook Graph adresine gider
 HOST = "https://graph.instagram.com/" if TOKEN.startswith("IG") else "https://graph.facebook.com/"
 API = HOST + SURUM + "/"
+IG_ID = os.environ.get("IG_USER_ID", "").strip() or "17841431899987553"   # @runwith.mico
 GEC_KALMA = dt.timedelta(hours=48)   # bundan fazla geciken takvim haftalık olarak ileri kaydırılır
 
 def api(path, params=None, post=False):
@@ -43,7 +44,11 @@ def api(path, params=None, post=False):
 
 def ig_user():
     """@runwith.mico hesabının kimliğini döndürür; kullanıcı adı tutmazsa durur."""
-    me = api("me", {"fields": "user_id,username" if "instagram" in HOST else "id,username"})
+    if "instagram" in HOST:
+        me = api("me", {"fields": "user_id,username"})
+    else:
+        # Facebook Graph (sistem kullanıcısı anahtarı, süresiz): hesap kimliğiyle sorgulanır
+        me = api(IG_ID, {"fields": "id,username"})
     ad = me.get("username", "")
     if ad.lower() != HESAP:
         sys.exit(f"Güvenlik durdurması: anahtar @{ad} hesabına ait, @{HESAP} değil. Hiçbir şey paylaşılmadı.")
@@ -115,6 +120,8 @@ def kontrol():
 def yenile():
     """Uzun ömürlü anahtarın süresini 60 gün uzatır. Anahtar asla yazdırılmaz."""
     ig_user()
+    if "instagram" not in HOST:
+        print("Sistem kullanıcısı anahtarı süresiz; yenileme gerekmiyor"); return
     url = "https://graph.instagram.com/refresh_access_token?" + urllib.parse.urlencode(
         {"grant_type": "ig_refresh_token", "access_token": TOKEN})
     try:
