@@ -19,5 +19,15 @@
   "not": "Onay bekliyor: durumu 'bekliyor' yapılınca tarihinde paylaşılır.",
   "media_id": "18117536957600829",
   "yayin": "2026-11-19T22:42:24+00:00"
+ },
+ {
+  "id": "hikaye-2026-11-20-karar-senin",
+  "tip": "hikaye",
+  "tarih": "2026-11-20T20:00:00+03:00",
+  "gorseller": [
+   "gorseller/hikaye/2026-11-20-karar-senin.jpg"
+  ],
+  "metin": "",
+  "durum": "bekliyor"
  }
 ]
