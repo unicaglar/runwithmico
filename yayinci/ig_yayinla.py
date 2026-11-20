@@ -29,6 +29,7 @@ HOST = "https://graph.instagram.com/" if TOKEN.startswith("IG") else "https://gr
 API = HOST + SURUM + "/"
 IG_ID = os.environ.get("IG_USER_ID", "").strip() or "17841431899987553"   # @runwith.mico
 GEC_KALMA = dt.timedelta(hours=48)   # bundan fazla geciken takvim haftalık olarak ileri kaydırılır
+ERKEN_BEKLE = dt.timedelta(hours=5, minutes=30)   # bu kadar yakındaki gönderi için çalıştırma bekleyip tam saatinde paylaşır
 
 def api(path, params=None, post=False):
     params = dict(params or {}, access_token=TOKEN)
@@ -96,7 +97,17 @@ def yayinla():
     bekleyen = [x for x in t if x["durum"] == "bekliyor"]
     due = [x for x in bekleyen if dt.datetime.fromisoformat(x["tarih"]) <= now]
     if not due:
-        print("Zamanı gelen gönderi yok"); return
+        # GitHub'ın zamanlanmış çalıştırmaları saatlerce gecikebilir; yaklaşan gönderi varsa
+        # bu çalıştırma saatine kadar bekler ve tam zamanında paylaşır.
+        yakin = [x for x in bekleyen if dt.datetime.fromisoformat(x["tarih"]) - now <= ERKEN_BEKLE]
+        if not yakin:
+            print("Zamanı gelen gönderi yok"); return
+        hedef = min(dt.datetime.fromisoformat(x["tarih"]) for x in yakin)
+        sure = (hedef - now).total_seconds()
+        print(f"Sıradaki gönderi {hedef.isoformat()}; {int(sure // 60)} dk bekleniyor", flush=True)
+        time.sleep(max(0, sure) + 5)
+        now = dt.datetime.now(dt.timezone.utc)
+        due = [x for x in bekleyen if dt.datetime.fromisoformat(x["tarih"]) <= now]
     gec = now - dt.datetime.fromisoformat(min(due, key=lambda x: x["tarih"])["tarih"])
     if gec > GEC_KALMA:
         hafta = math.ceil(gec / dt.timedelta(days=7))

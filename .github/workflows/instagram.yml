@@ -4,8 +4,9 @@ name: Instagram
 
 on:
   schedule:
-    # Her gün 18:20–00:50 (TR) arası yarım saatte bir; zamanı gelen gönderi ilk başarılı denemede paylaşılır.
-    - cron: "23,53 15-21 * * *"
+    # Saatte bir. GitHub zamanlamaları gecikebildiği için betik, 5,5 saat içindeki gönderiyi
+    # bekleyip tam saatinde paylaşır; sıradaki çalıştırmalar bu sırada kuyrukta bekler.
+    - cron: "7 * * * *"
   workflow_dispatch:
     inputs:
       islem:
@@ -24,6 +25,7 @@ concurrency:
 jobs:
   instagram:
     runs-on: ubuntu-latest
+    timeout-minutes: 350
     env:
       IG_TOKEN: ${{ secrets.IG_TOKEN }}
       IG_USER_ID: ${{ secrets.IG_USER_ID }}
