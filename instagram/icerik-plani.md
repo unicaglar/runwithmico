@@ -5,9 +5,9 @@ onaylanınca durum `bekliyor` yapılır ve tarihinde 20:00'de paylaşılır.
 
 | Tarih | Tür | Konu | Durum |
 |---|---|---|---|
-| Cmt 29 Kas | Carousel (8) | 11 ayda 4,4 km → 22 km | ✅ Görseller hazır |
+| Cmt 29 Kas | Carousel (7) | 11 ay arayla iki koşu (defter tasarımı) | ✅ Görseller hazır |
 | Pzt 1 Ara | Reels | Bodrum sabah uzun koşusu | 🎥 Video gerekiyor |
-| Çar 3 Ara | Carousel (6) | Kyzikos Ultra 22K yarış hikâyesi | ✅ Görseller hazır |
+| Çar 3 Ara | Carousel (5) | Kyzikos Ultra 22K yarış defteri | ✅ Görseller hazır |
 | Cum 5 Ara | Reels | Evde Mini HYROX / HIIT | 🎥 Video gerekiyor |
 | Paz 7 Ara | Reels | Bodrum patikası POV | 🎥 Video gerekiyor |
 | Sal 9 Ara | Carousel | Patika vs Asfalt Bölüm 2 | 🏃 Bu hafta iki koşu gerekiyor |
@@ -28,7 +28,6 @@ Hikâyeler API ile yalnızca görsel olarak paylaşılır; anket ve soru çıkar
 1. Gelen tüm yorumlara ilk bir saat içinde cevap ver
 2. #runningturkey ve #trailrunningturkey'de 5 gönderiye anlamlı yorum yaz
 3. Bodrum'daki koşu gruplarının ve yarış organizasyonlarının hikâyelerine yanıt ver
-4. Yarış gönderilerinde organizasyonu **iş birliği (Collab)** olarak ekle
 
 ## Ölçüm
 
