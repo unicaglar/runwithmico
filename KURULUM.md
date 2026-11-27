@@ -53,3 +53,16 @@ Kurulu olan: Meta uygulaması **Run With Mico** (App ID 1765600557863847), ayrı
 3. Bir dakika sonra çalışmayı aç: `Bağlantı tamam: @runwith.mico · … · kimlik …` yazmalı.
 
 Bundan sonra: Claude takvime gönderi ekler (taslak), sen onaylarsın (bekliyor), tarihi gelince kendiliğinden paylaşılır.
+
+## 6. İstatistik izni (haftalık rapor için)
+
+Haftalık rapor (`.github/workflows/rapor.yml`, her pazartesi) gönderilerin erişim, kaydetme ve paylaşım sayılarını
+`instagram/rapor.md` dosyasına yazar. Bunun için anahtarın istatistik okuma izni olmalı:
+
+1. Meta uygulaması **Run With Mico** → **Instagram API → API setup with Unified login**
+2. **Permissions** bölümünde `instagram_business_manage_insights` iznini ekle
+3. @runwith.mico satırında **Generate token** ile yeni anahtar al (izin ekranında istatistik iznini onayla)
+4. GitHub → Settings → Secrets → `IG_TOKEN` değerini yeni anahtarla **güncelle**
+5. Actions → **Instagram rapor** → **Run workflow** ile dene
+
+İzin yoksa rapor yine oluşur ama "İstatistikler okunamadı" uyarısı gösterir.

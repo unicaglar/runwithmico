@@ -45,5 +45,84 @@
   "not": "Onaylandı (27.11.2026). Konum: Marmaris. Kaynak: Strava 'Marmaris. 5K Recovery' (19.04.2026).",
   "media_id": "17997708876023490",
   "yayin": "2026-11-27T14:13:30+00:00"
+ },
+ {
+  "id": "carousel-11-ayda",
+  "tip": "carousel",
+  "tarih": "2026-11-29T20:00:00+03:00",
+  "gorseller": [
+   "gorseller/11-ayda/01.jpg",
+   "gorseller/11-ayda/02.jpg",
+   "gorseller/11-ayda/03.jpg",
+   "gorseller/11-ayda/04.jpg",
+   "gorseller/11-ayda/05.jpg",
+   "gorseller/11-ayda/06.jpg",
+   "gorseller/11-ayda/07.jpg",
+   "gorseller/11-ayda/08.jpg"
+  ],
+  "metin": "11 ay önce 4,4 km'de zorlanıyordum. Geçen ay 22 km koştum 👇\n\n📍 Bodrum · Strava'daki ilk koşum: 28 Aralık 2025\n⏱️ 5 km: 40:05 → 27:51\n🏁 10 km: ilk kez 1 saatin altında (59:42)\n📈 Ocak–Kasım: 749 km · 93 koşu\n\nSihirli bir antrenman yok. Haftada ortalama 2 koşu ve araya HIIT. Gerisini düzen hallediyor.\n\n🔖 Koşuya yeni başladıysan kaydet, 6 ay sonra tekrar bak\n💬 Sen ilk koşunda kaç km koşmuştun?\n\n#koşuyabaşla #koşu #koşucu #runningturkey #bodrum",
+  "durum": "taslak",
+  "not": "Hazır: görseller oluşturuldu. Onaylarsan durumu 'bekliyor' yap."
+ },
+ {
+  "id": "reels-bodrum-sabah-uzun-kosu",
+  "tip": "reels",
+  "tarih": "2026-12-01T20:00:00+03:00",
+  "gorseller": [],
+  "metin": "",
+  "durum": "taslak",
+  "not": "FİKİR: Pazar sabahı uzun koşudan 10–15 sn'lik kesitler (gün doğumu, sahil, saatte tempo). Ekran yazısı: 'Pazar 13 km: en hızlı km sonuncusuydu'. VİDEO GEREKİYOR: yükleme sayfasından videoyu yükle, Claude açıklamayı tamamlayıp bu öğeye ekler."
+ },
+ {
+  "id": "carousel-kyzikos-ultra-22k",
+  "tip": "carousel",
+  "tarih": "2026-12-03T20:00:00+03:00",
+  "gorseller": [
+   "gorseller/kyzikos-22k/01.jpg",
+   "gorseller/kyzikos-22k/02.jpg",
+   "gorseller/kyzikos-22k/03.jpg",
+   "gorseller/kyzikos-22k/04.jpg",
+   "gorseller/kyzikos-22k/05.jpg",
+   "gorseller/kyzikos-22k/06.jpg"
+  ],
+  "metin": "22 km, 472 m tırmanış. En hızlı kilometrem sonuncusuydu 👇\n\n📍 Kyzikos Ultra 22K · Erdek · 10 Ekim\n⏱️ 2:34 · ort. 7:02/km\n⛰️ 6–8. km'de 180 m tırmanış, tempo 9:33'e düştü\n⚡ Son km: 5:31/km, ilk kilometremden bile hızlı\n❤️ Ortalama nabız 159, finişte 184\n\n💡 Yokuşta yavaşlamak kaybetmek değil. Enerjini sona sakla.\n\n🔖 İlk 20K+ yarışından önce kaydet\n💬 Senin sıradaki yarışın hangisi?\n\n#kyzikosultra #koşu #yarış #runningturkey #erdek",
+  "durum": "taslak",
+  "not": "Hazır: görseller oluşturuldu. Yarışın Instagram hesabını iş birliğine eklemeyi unutma."
+ },
+ {
+  "id": "reels-evde-mini-hyrox",
+  "tip": "reels",
+  "tarih": "2026-12-05T20:00:00+03:00",
+  "gorseller": [],
+  "metin": "",
+  "durum": "taslak",
+  "not": "FİKİR: Mini HYROX / HIIT seansından hızlı kurgu (her hareket 1 sn). Ekran yazısı: 'Koşucunun koşmadığı günler'. VİDEO GEREKİYOR: yükleme sayfasından videoyu yükle, Claude açıklamayı tamamlayıp bu öğeye ekler."
+ },
+ {
+  "id": "reels-patika-pov",
+  "tip": "reels",
+  "tarih": "2026-12-07T20:00:00+03:00",
+  "gorseller": [],
+  "metin": "",
+  "durum": "taslak",
+  "not": "FİKİR: Bodrum patikasında göğüs/elde kamera POV, yokuş ve manzara. Ekran yazısı: 'Bodrum'da 9 km, 283 m tırmanış'. VİDEO GEREKİYOR: yükleme sayfasından videoyu yükle, Claude açıklamayı tamamlayıp bu öğeye ekler."
+ },
+ {
+  "id": "carousel-patika-vs-asfalt-2",
+  "tip": "carousel",
+  "tarih": "2026-12-09T20:00:00+03:00",
+  "gorseller": [],
+  "metin": "",
+  "durum": "taslak",
+  "not": "FİKİR: Patika vs Asfalt Bölüm 2. Bu hafta aynı mesafeyi (ör. 8 km) bir gün patikada bir gün asfaltta koş; Claude Strava'dan 5 raundluk karşılaştırmayı hazırlar."
+ },
+ {
+  "id": "reels-kosu-oncesi-3-sey",
+  "tip": "reels",
+  "tarih": "2026-12-11T20:00:00+03:00",
+  "gorseller": [],
+  "metin": "",
+  "durum": "taslak",
+  "not": "FİKİR: Kameraya konuşarak 'Uzun koşudan önce yaptığım 3 şey' (15 sn). Öğretici içerik, paylaşılır. VİDEO GEREKİYOR: yükleme sayfasından videoyu yükle, Claude açıklamayı tamamlayıp bu öğeye ekler."
  }
 ]
