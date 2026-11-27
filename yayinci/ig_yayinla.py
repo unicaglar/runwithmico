@@ -181,13 +181,13 @@ def rapor():
     if izin_yok:
         out += ["> İstatistikler okunamadı: anahtarda `instagram_business_manage_insights` izni yok. KURULUM.md → 6. adım.", ""]
     kolonlar = [k for k, _ in BASLIK if any(k in d for _, d, _ in satirlar)]
-    out += ["| Gönderi | Tür | Tarih | " + " | ".join(dict(BASLIK)[k] for k in kolonlar) + " | Kaydetme / erişim |",
-            "|---|---|---|" + "---|" * len(kolonlar) + "---|"]
+    out += ["| " + " | ".join(["Gönderi", "Tür", "Tarih"] + [dict(BASLIK)[k] for k in kolonlar] + ["Kaydetme / erişim"]) + " |",
+            "|" + "---|" * (4 + len(kolonlar))]
     for p, d, hata in satirlar:
         tarih = (p.get("yayin") or p.get("tarih", ""))[:10]
         oran = f"%{100 * d['saved'] / d['reach']:.1f}" if d.get("reach") and d.get("saved") is not None else "–"
         hucre = [str(d.get(k, "–")) for k in kolonlar] if not hata else ["–"] * len(kolonlar)
-        out.append(f"| {p['id']} | {p.get('tip', '')} | {tarih} | " + " | ".join(hucre) + f" | {oran if not hata else 'hata: ' + hata[:60]} |")
+        out.append("| " + " | ".join([p["id"], p.get("tip", ""), tarih] + hucre + [oran if not hata else "hata: " + hata[:60]]) + " |")
     out += ["", "Hikâye istatistikleri Instagram'da yalnızca 24 saat tutulur; sonrasında boş görünür."]
     open(os.path.join(ROOT, "instagram", "rapor.md"), "w", encoding="utf-8").write("\n".join(out) + "\n")
     print("\n".join(out))
