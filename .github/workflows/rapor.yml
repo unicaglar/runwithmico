@@ -1,0 +1,38 @@
+# @runwith.mico haftalık performans raporu: paylaşılan gönderilerin istatistiklerini instagram/rapor.md dosyasına yazar.
+# Gerekli: IG_TOKEN anahtarında instagram_business_manage_insights izni (KURULUM.md → 6. adım).
+name: Instagram rapor
+
+on:
+  schedule:
+    - cron: "17 6 * * 1"   # her pazartesi 09:17 (TSİ)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: instagram
+  cancel-in-progress: false
+
+jobs:
+  rapor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      IG_TOKEN: ${{ secrets.IG_TOKEN }}
+      IG_USER_ID: ${{ secrets.IG_USER_ID }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: İstatistikleri topla
+        run: python3 yayinci/ig_yayinla.py rapor
+
+      - name: Raporu kaydet
+        run: |
+          git config user.name "instagram-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add instagram/rapor.md || true
+          if git diff --cached --quiet; then echo "Değişiklik yok"; exit 0; fi
+          git commit -m "Instagram: haftalık rapor"
+          git pull --rebase origin main
+          git push origin HEAD:main

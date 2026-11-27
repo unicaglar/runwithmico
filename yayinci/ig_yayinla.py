@@ -3,6 +3,8 @@
   python3 yayinci/ig_yayinla.py yayinla   # takvimde zamanı gelen gönderiyi paylaşır
   python3 yayinci/ig_yayinla.py kontrol   # anahtarın çalıştığını ve doğru hesaba bağlı olduğunu gösterir
   python3 yayinci/ig_yayinla.py yenile    # anahtarın süresini uzatır; yeni anahtar farklıysa yeni_anahtar dosyasına yazar
+  python3 yayinci/ig_yayinla.py rapor     # paylaşılan gönderilerin istatistiklerini instagram/rapor.md dosyasına yazar
+                                          # (anahtarda instagram_business_manage_insights izni gerekir)
 
 Yöntem: "Instagram girişiyle Instagram API'si" (graph.instagram.com). Facebook sayfası gerekmez.
 
@@ -64,6 +66,8 @@ def bekle(cid, deneme=30):
     sys.exit(f"Görsel işleme zaman aşımı: {cid}")
 
 def paylas(uid, p, now):
+    if not p.get("gorseller"):
+        print(f"Atlandı: {p['id']} için görsel/video yok. Önce dosyayı ekleyin."); return False
     urls = [f"{SITE}/{g}" for g in p["gorseller"]]
     if p.get("tip") == "hikaye":
         cid = api(f"{uid}/media", {"image_url": urls[0], "media_type": "STORIES"}, post=True)["id"]
@@ -89,6 +93,7 @@ def paylas(uid, p, now):
     mid = api(f"{uid}/media_publish", {"creation_id": cid}, post=True)["id"]
     p.update(durum="yayinlandi", media_id=mid, yayin=now.isoformat(timespec="seconds"))
     print(f"Yayınlandı: {p['id']} → {mid}")
+    return True
 
 def yayinla():
     """Her çalışmada zamanı gelen en fazla bir gönderi ve bir hikâye paylaşılır."""
@@ -119,14 +124,73 @@ def yayinla():
     for hikaye in (False, True):
         grup = [x for x in due if (x.get("tip") == "hikaye") == hikaye]
         if not grup: continue
-        paylas(uid, min(grup, key=lambda x: x["tarih"]), now)
-        json.dump(t, open(TAKVIM, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+        if paylas(uid, min(grup, key=lambda x: x["tarih"]), now):
+            json.dump(t, open(TAKVIM, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
 
 def kontrol():
     print(f"Anahtar türü: {TOKEN[:4]}… ({len(TOKEN)} karakter) → {HOST}")
     uid = ig_user()
     r = api(uid, {"fields": "username,followers_count,media_count"})
     print(f"Bağlantı tamam: @{r.get('username')} · {r.get('followers_count')} takipçi · {r.get('media_count')} gönderi · kimlik {uid}")
+
+def api_dene(path, params):
+    """api() gibi, ama hata olursa durmak yerine (None, hata metni) döndürür."""
+    params = dict(params, access_token=TOKEN)
+    try:
+        with urllib.request.urlopen(API + path + "?" + urllib.parse.urlencode(params), timeout=60) as r:
+            return json.load(r), None
+    except urllib.error.HTTPError as e:
+        try: msg = json.loads(e.read().decode(errors="ignore")).get("error", {}).get("message", "")
+        except Exception: msg = ""
+        return None, f"{e.code} {msg}".strip()
+
+METRIKLER = {
+    "reels":    [["views", "reach", "likes", "comments", "shares", "saved", "total_interactions", "ig_reels_avg_watch_time"],
+                 ["views", "reach", "likes", "comments", "shares", "saved"], ["reach", "likes", "comments", "saved"]],
+    "hikaye":   [["views", "reach", "replies", "shares"], ["reach", "replies"]],
+    "diger":    [["views", "reach", "likes", "comments", "shares", "saved", "total_interactions"],
+                 ["reach", "likes", "comments", "shares", "saved"], ["reach", "likes", "comments", "saved"]],
+}
+BASLIK = [("views", "Görüntülenme"), ("reach", "Erişim"), ("likes", "Beğeni"), ("comments", "Yorum"),
+          ("shares", "Paylaşım"), ("saved", "Kaydetme"), ("replies", "Yanıt"), ("ig_reels_avg_watch_time", "Ort. izlenme (sn)")]
+
+def rapor():
+    """Paylaşılan her gönderinin istatistiklerini toplar ve instagram/rapor.md dosyasına yazar."""
+    uid = ig_user()
+    hesap, _ = api_dene(uid, {"fields": "username,followers_count,media_count"})
+    t = json.load(open(TAKVIM, encoding="utf-8"))
+    satirlar, izin_yok = [], False
+    for p in sorted((x for x in t if x.get("media_id")), key=lambda x: x.get("yayin", ""), reverse=True):
+        tur = p.get("tip") if p.get("tip") in ("reels", "hikaye") else "diger"
+        veri, hata = None, None
+        for liste in METRIKLER[tur]:
+            veri, hata = api_dene(f"{p['media_id']}/insights", {"metric": ",".join(liste)})
+            if veri is not None: break
+        degerler = {}
+        if veri:
+            for m in veri.get("data", []):
+                v = (m.get("values") or [{}])[0].get("value", m.get("total_value", {}).get("value"))
+                degerler[m.get("name")] = v
+        elif hata and ("permission" in hata.lower() or hata.startswith("403") or "(#10)" in hata):
+            izin_yok = True
+        satirlar.append((p, degerler, hata if not veri else None))
+    simdi = dt.datetime.now(dt.timezone(dt.timedelta(hours=3))).strftime("%d.%m.%Y %H:%M")
+    out = [f"# @{HESAP} performans raporu", "", f"Güncelleme: {simdi} (TSİ)", ""]
+    if hesap:
+        out += [f"**Takipçi:** {hesap.get('followers_count', '?')} · **Gönderi:** {hesap.get('media_count', '?')}", ""]
+    if izin_yok:
+        out += ["> İstatistikler okunamadı: anahtarda `instagram_business_manage_insights` izni yok. KURULUM.md → 6. adım.", ""]
+    kolonlar = [k for k, _ in BASLIK if any(k in d for _, d, _ in satirlar)]
+    out += ["| Gönderi | Tür | Tarih | " + " | ".join(dict(BASLIK)[k] for k in kolonlar) + " | Kaydetme / erişim |",
+            "|---|---|---|" + "---|" * len(kolonlar) + "---|"]
+    for p, d, hata in satirlar:
+        tarih = (p.get("yayin") or p.get("tarih", ""))[:10]
+        oran = f"%{100 * d['saved'] / d['reach']:.1f}" if d.get("reach") and d.get("saved") is not None else "–"
+        hucre = [str(d.get(k, "–")) for k in kolonlar] if not hata else ["–"] * len(kolonlar)
+        out.append(f"| {p['id']} | {p.get('tip', '')} | {tarih} | " + " | ".join(hucre) + f" | {oran if not hata else 'hata: ' + hata[:60]} |")
+    out += ["", "Hikâye istatistikleri Instagram'da yalnızca 24 saat tutulur; sonrasında boş görünür."]
+    open(os.path.join(ROOT, "instagram", "rapor.md"), "w", encoding="utf-8").write("\n".join(out) + "\n")
+    print("\n".join(out))
 
 def yenile():
     """Uzun ömürlü anahtarın süresini 60 gün uzatır. Anahtar asla yazdırılmaz."""
@@ -151,4 +215,4 @@ def yenile():
 if __name__ == "__main__":
     if not TOKEN:
         print("IG_TOKEN tanımlı değil; Instagram adımı atlandı."); sys.exit(0)
-    {"yayinla": yayinla, "kontrol": kontrol, "yenile": yenile}[sys.argv[1] if len(sys.argv) > 1 else "kontrol"]()
+    {"yayinla": yayinla, "kontrol": kontrol, "yenile": yenile, "rapor": rapor}[sys.argv[1] if len(sys.argv) > 1 else "kontrol"]()
