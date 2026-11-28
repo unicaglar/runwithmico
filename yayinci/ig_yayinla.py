@@ -73,7 +73,8 @@ def paylas(uid, p, now):
         cid = api(f"{uid}/media", {"image_url": urls[0], "media_type": "STORIES"}, post=True)["id"]
     elif p.get("tip") == "reels":
         prm = {"media_type": "REELS", "video_url": urls[0], "caption": p["metin"], "share_to_feed": "true"}
-        if p.get("kapak_ms") is not None: prm["thumb_offset"] = str(p["kapak_ms"])
+        if p.get("kapak"): prm["cover_url"] = f"{SITE}/{p['kapak']}"   # özel kapak görseli
+        elif p.get("kapak_ms") is not None: prm["thumb_offset"] = str(p["kapak_ms"])
         cid = api(f"{uid}/media", prm, post=True)["id"]
         bekle(cid, 120)
     elif len(urls) == 1:
